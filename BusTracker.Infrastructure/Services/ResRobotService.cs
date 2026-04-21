@@ -44,8 +44,11 @@ public class ResRobotService : IResRobotService
 
         return response?.Departure?
             .Select(d => new Departure
+
             {
-                LineNumber = d.TransportNumber,
+                LineNumber = !string.IsNullOrEmpty(d.TransportNumber)
+                ? d.TransportNumber
+                : d.Name.Split(' ').LastOrDefault() ?? string.Empty,
                 LineName = d.Name,
                 Direction = d.Direction,
                 TransportCategory = d.TransportCategory,
