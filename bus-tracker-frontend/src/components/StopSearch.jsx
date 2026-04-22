@@ -22,37 +22,30 @@ export default function StopSearch({ onSelectStop, currentStop }) {
 
   return (
     <div className="stop-search">
-      <div className="stop-search-header">
-        <span className="stop-icon">📍</span>
-        <div className="stop-search-input-wrap">
-          {open ? (
-            <input
-              autoFocus
-              className="stop-input"
-              placeholder="Sök hållplats..."
-              value={query}
-              onChange={e => setQuery(e.target.value)}
-              onBlur={() => setTimeout(() => setOpen(false), 150)}
-            />
-          ) : (
-            <button className="stop-name-btn" onClick={() => setOpen(true)}>
-              {currentStop?.name ?? 'Välj hållplats'}
-              <span className="edit-icon">✏️</span>
-            </button>
-          )}
-        </div>
+      <div className="stop-search-card">
+        <div className="stop-icon-wrap">📍</div>
+        {open ? (
+          <input
+            autoFocus
+            className="stop-input"
+            placeholder="Sök hållplats..."
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            onBlur={() => setTimeout(() => setOpen(false), 150)}
+          />
+        ) : (
+          <button className="stop-name-btn" onClick={() => setOpen(true)}>
+            {currentStop?.name ?? 'Välj hållplats'}
+            <span className="edit-icon">✏️</span>
+          </button>
+        )}
       </div>
 
       {open && results.length > 0 && (
         <ul className="stop-results">
-          {loading && <li className="stop-loading">Söker...</li>}
           {results.map(stop => (
-            <li
-              key={stop.extId}
-              className="stop-result-item"
-              onMouseDown={() => handleSelect(stop)}
-            >
-              <span className="result-icon">🚏</span>
+            <li key={stop.extId} className="stop-result-item" onMouseDown={() => handleSelect(stop)}>
+              <span className="result-dot" />
               {stop.name}
             </li>
           ))}
