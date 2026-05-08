@@ -10,7 +10,7 @@ public class GtfsRealtimeService : IGtfsRealtimeService
 
     public Task<List<Vehicle>> GetVehiclePositionsAsync()
     {
-        // TODO: подключить позже через Google.Protobuf
+        // TODO: Implement GTFS Realtime fetching and parsing logic
         return Task.FromResult(new List<Vehicle>());
     }
 }

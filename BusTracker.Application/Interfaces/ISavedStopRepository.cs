@@ -4,9 +4,9 @@ namespace BusTracker.Application.Interfaces;
 
 public interface ISavedStopRepository
 {
-    Task<List<SavedStop>> GetByUserIdAsync(int userId);
-    Task<SavedStop?> GetByIdAsync(int id);
-    Task<SavedStop> CreateAsync(SavedStop savedStop);
-    Task<SavedStop> UpdateAsync(SavedStop savedStop);
-    Task DeleteAsync(int id);
+    Task<IReadOnlyList<SavedStop>> GetByUserIdAsync(int userId, CancellationToken cancellationToken = default);
+    Task<SavedStop?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
+    Task<SavedStop> CreateAsync(SavedStop savedStop, CancellationToken cancellationToken = default);
+    Task<SavedStop> UpdateAsync(SavedStop savedStop, CancellationToken cancellationToken = default);
+    Task DeleteAsync(int id, CancellationToken cancellationToken = default);
 }
