@@ -14,6 +14,7 @@ public static class DependencyInjection
         IConfiguration config)
     {
         services.AddHttpClient<IResRobotService, ResRobotService>();
+        services.AddHttpClient<IGtfsRealtimeService, GtfsRealtimeService>();
 
         services.AddDbContext<BusTrackerDbContext>(options =>
             options.UseSqlServer(config.GetConnectionString("DefaultConnection")));
