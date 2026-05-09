@@ -1,12 +1,16 @@
 using BusTracker.API.Requests;
-using BusTracker.Application.UseCases.SavedStops;
+using BusTracker.Application.UseCases.SavedStops.Commands;
+using BusTracker.Application.UseCases.SavedStops.Queries;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace BusTracker.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class SavedStopsController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -16,13 +20,22 @@ public class SavedStopsController : ControllerBase
         _mediator = mediator;
     }
 
-    [HttpGet("{userId}")]
-    public async Task<IActionResult> GetSavedStops(int userId, CancellationToken cancellationToken)
-    {
-        if (userId <= 0)
-            return BadRequest("userId must be greater than 0");
+    private int GetUserId() =>
+        int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-        var query = new GetSavedStopsQuery(userId);
+    [HttpGet("all")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetAllSavedStops(CancellationToken cancellationToken)
+    {
+        var query = new GetAllSavedStopsQuery();
+        var savedStops = await _mediator.Send(query, cancellationToken);
+        return Ok(savedStops);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetSavedStops(CancellationToken cancellationToken)
+    {
+        var query = new GetSavedStopsQuery(GetUserId());
         var savedStops = await _mediator.Send(query, cancellationToken);
         return Ok(savedStops);
     }
@@ -30,12 +43,12 @@ public class SavedStopsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> AddSavedStop([FromBody] AddSavedStopRequest request, CancellationToken cancellationToken)
     {
-        if (request.UserId <= 0 || string.IsNullOrWhiteSpace(request.StopName) || string.IsNullOrWhiteSpace(request.StopId))
+        if (string.IsNullOrWhiteSpace(request.StopName) || string.IsNullOrWhiteSpace(request.StopId))
             return BadRequest("Invalid request");
 
-        var command = new AddSavedStopCommand(request.UserId, request.StopId, request.StopExtId, request.StopName);
+        var command = new AddSavedStopCommand(GetUserId(), request.StopId, request.StopExtId, request.StopName);
         var savedStop = await _mediator.Send(command, cancellationToken);
-        return CreatedAtAction(nameof(GetSavedStops), new { userId = savedStop.UserId }, savedStop);
+        return CreatedAtAction(nameof(GetSavedStops), savedStop);
     }
 
     [HttpPut("{id}")]
@@ -44,9 +57,16 @@ public class SavedStopsController : ControllerBase
         if (id <= 0 || string.IsNullOrWhiteSpace(request.StopName))
             return BadRequest("Invalid request");
 
-        var command = new UpdateSavedStopCommand(id, request.StopName);
-        var savedStop = await _mediator.Send(command, cancellationToken);
-        return Ok(savedStop);
+        try
+        {
+            var command = new UpdateSavedStopCommand(id, GetUserId(), request.StopName);
+            var savedStop = await _mediator.Send(command, cancellationToken);
+            return Ok(savedStop);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
     }
 
     [HttpDelete("{id}")]
@@ -55,8 +75,15 @@ public class SavedStopsController : ControllerBase
         if (id <= 0)
             return BadRequest("Invalid id");
 
-        var command = new DeleteSavedStopCommand(id);
-        await _mediator.Send(command, cancellationToken);
-        return NoContent();
+        try
+        {
+            var command = new DeleteSavedStopCommand(id, GetUserId());
+            await _mediator.Send(command, cancellationToken);
+            return NoContent();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
     }
 }

@@ -3,7 +3,7 @@ using BusTracker.Application.DTOs;
 using BusTracker.Application.Interfaces;
 using MediatR;
 
-namespace BusTracker.Application.UseCases.SavedStops;
+namespace BusTracker.Application.UseCases.SavedStops.Queries;
 
 public class GetSavedStopsHandler : IRequestHandler<GetSavedStopsQuery, List<SavedStopDto>>
 {
