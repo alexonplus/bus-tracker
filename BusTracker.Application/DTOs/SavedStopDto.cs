@@ -8,4 +8,5 @@ public class SavedStopDto
     public string StopName { get; set; } = string.Empty;
     public int UserId { get; set; }
     public DateTime CreatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
 }

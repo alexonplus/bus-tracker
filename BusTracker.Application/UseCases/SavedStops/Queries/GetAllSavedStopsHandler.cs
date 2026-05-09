@@ -5,7 +5,7 @@ using MediatR;
 
 namespace BusTracker.Application.UseCases.SavedStops.Queries;
 
-public class GetAllSavedStopsHandler : IRequestHandler<GetAllSavedStopsQuery, List<SavedStopDto>>
+public class GetAllSavedStopsHandler : IRequestHandler<GetAllSavedStopsQuery, IReadOnlyList<SavedStopDto>>
 {
     private readonly ISavedStopRepository _repository;
     private readonly IMapper _mapper;
@@ -16,7 +16,7 @@ public class GetAllSavedStopsHandler : IRequestHandler<GetAllSavedStopsQuery, Li
         _mapper = mapper;
     }
 
-    public async Task<List<SavedStopDto>> Handle(GetAllSavedStopsQuery request, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<SavedStopDto>> Handle(GetAllSavedStopsQuery request, CancellationToken cancellationToken)
     {
         var stops = await _repository.GetAllAsync(cancellationToken);
         return _mapper.Map<List<SavedStopDto>>(stops);

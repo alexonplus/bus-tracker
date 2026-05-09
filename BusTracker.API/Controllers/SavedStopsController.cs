@@ -40,6 +40,17 @@ public class SavedStopsController : ControllerBase
         return Ok(savedStops);
     }
 
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetSavedStopById(int id, CancellationToken cancellationToken)
+    {
+        if (id <= 0)
+            return BadRequest("Invalid id");
+
+        var query = new GetSavedStopByIdQuery(id, GetUserId());
+        var savedStop = await _mediator.Send(query, cancellationToken);
+        return Ok(savedStop);
+    }
+
     [HttpPost]
     public async Task<IActionResult> AddSavedStop([FromBody] AddSavedStopRequest request, CancellationToken cancellationToken)
     {
@@ -48,7 +59,7 @@ public class SavedStopsController : ControllerBase
 
         var command = new AddSavedStopCommand(GetUserId(), request.StopId, request.StopExtId, request.StopName);
         var savedStop = await _mediator.Send(command, cancellationToken);
-        return CreatedAtAction(nameof(GetSavedStops), savedStop);
+        return CreatedAtAction(nameof(GetSavedStopById), new { id = savedStop.Id }, savedStop);
     }
 
     [HttpPut("{id}")]

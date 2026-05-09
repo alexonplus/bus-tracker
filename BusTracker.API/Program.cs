@@ -1,6 +1,8 @@
 using BusTracker.Application;
+using BusTracker.Application.Common.Exceptions;
 using BusTracker.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
@@ -74,6 +76,39 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowFrontend");
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        context.Response.ContentType = "application/json";
+        var errorFeature = context.Features.Get<IExceptionHandlerFeature>();
+        var error = errorFeature?.Error;
+
+        if (error is RequestValidationException validationException)
+        {
+            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+            await context.Response.WriteAsJsonAsync(new { errors = validationException.Errors });
+            return;
+        }
+
+        if (error is KeyNotFoundException)
+        {
+            context.Response.StatusCode = StatusCodes.Status404NotFound;
+            await context.Response.WriteAsJsonAsync(new { error = error.Message });
+            return;
+        }
+
+        if (error is UnauthorizedAccessException)
+        {
+            context.Response.StatusCode = StatusCodes.Status403Forbidden;
+            await context.Response.WriteAsJsonAsync(new { error = error.Message });
+            return;
+        }
+
+        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+        await context.Response.WriteAsJsonAsync(new { error = error?.Message ?? "An unexpected error occurred." });
+    });
+});
 app.UseAuthentication(); // this must come before UseAuthorization
 app.UseAuthorization();
 app.MapControllers();
