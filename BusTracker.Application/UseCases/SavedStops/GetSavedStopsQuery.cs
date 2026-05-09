@@ -1,6 +1,6 @@
-using BusTracker.Domain.Entities;
+using BusTracker.Application.DTOs;
 using MediatR;
 
 namespace BusTracker.Application.UseCases.SavedStops;
 
-public record GetSavedStopsQuery(int UserId) : IRequest<IReadOnlyList<SavedStop>>;
+public record GetSavedStopsQuery(int UserId) : IRequest<List<SavedStopDto>>;

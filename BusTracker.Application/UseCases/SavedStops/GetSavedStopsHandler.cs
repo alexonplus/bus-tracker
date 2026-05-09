@@ -1,18 +1,24 @@
+using AutoMapper;
+using BusTracker.Application.DTOs;
 using BusTracker.Application.Interfaces;
-using BusTracker.Domain.Entities;
 using MediatR;
 
 namespace BusTracker.Application.UseCases.SavedStops;
 
-public class GetSavedStopsHandler : IRequestHandler<GetSavedStopsQuery, IReadOnlyList<SavedStop>>
+public class GetSavedStopsHandler : IRequestHandler<GetSavedStopsQuery, List<SavedStopDto>>
 {
     private readonly ISavedStopRepository _repository;
+    private readonly IMapper _mapper;
 
-    public GetSavedStopsHandler(ISavedStopRepository repository)
+    public GetSavedStopsHandler(ISavedStopRepository repository, IMapper mapper)
     {
         _repository = repository;
+        _mapper = mapper;
     }
 
-    public Task<IReadOnlyList<SavedStop>> Handle(GetSavedStopsQuery request, CancellationToken cancellationToken)
-        => _repository.GetByUserIdAsync(request.UserId, cancellationToken);
+    public async Task<List<SavedStopDto>> Handle(GetSavedStopsQuery request, CancellationToken cancellationToken)
+    {
+        var stops = await _repository.GetByUserIdAsync(request.UserId, cancellationToken);
+        return _mapper.Map<List<SavedStopDto>>(stops);
+    }
 }
