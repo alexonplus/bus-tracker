@@ -3,4 +3,4 @@ using MediatR;
 
 namespace BusTracker.Application.UseCases.SavedStops.Queries;
 
-public record GetSavedStopsQuery(int UserId) : IRequest<List<SavedStopDto>>;
+public record GetSavedStopsQuery(int UserId) : IRequest<IReadOnlyList<SavedStopDto>>;
