@@ -14,6 +14,13 @@ public class SavedStopRepository : ISavedStopRepository
         _context = context;
     }
 
+    public async Task<IReadOnlyList<SavedStop>> GetAllAsync(CancellationToken cancellationToken = default)
+    {
+        return await _context.SavedStops
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<IReadOnlyList<SavedStop>> GetByUserIdAsync(int userId, CancellationToken cancellationToken = default)
     {
         return await _context.SavedStops

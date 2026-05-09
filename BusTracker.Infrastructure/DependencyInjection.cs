@@ -19,6 +19,7 @@ public static class DependencyInjection
         services.AddDbContext<BusTrackerDbContext>(options =>
             options.UseSqlServer(config.GetConnectionString("DefaultConnection")));
         services.AddScoped<ISavedStopRepository, SavedStopRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
 
         return services;
     }
