@@ -30,6 +30,9 @@ bus-tracker-frontend/      →  React SPA proxied to the API via Vite
 
 ## Getting Started
 
+**Option A — double-click `start.bat`** (Windows). Opens backend and frontend automatically.
+
+**Option B — manually:**
 ```bash
 # Backend — requires .NET 9 SDK
 cd BusTracker.API
@@ -41,16 +44,23 @@ npm install
 npm run dev
 ```
 
-The app is available at `http://localhost:5173` (or the next free port). The API runs on `https://localhost:7xxx`.
+Open `http://localhost:5173` in your browser.
 
-## Secrets (user secrets)
+## ResRobot API Key
+
+Stop search and real-time departures require a free API key from [trafiklab.se](https://www.trafiklab.se).
+
+1. Register at trafiklab.se and create a project
+2. Add the **ResRobot — Stolptidtabeller 2** product and copy your key
+3. Open `BusTracker.API/appsettings.json` and paste it:
 
 ```json
-{
-  "Jwt:Key": "<at least 32 characters>",
-  "Trafiklab:ResRobotKey": "<your ResRobot API key>"
+"Trafiklab": {
+  "ResRobotKey": "YOUR_KEY_HERE"
 }
 ```
+
+> Events, RSVP, JWT auth and admin panel work without a key.
 
 ## Design Patterns Demonstrated
 
