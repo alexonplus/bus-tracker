@@ -10,5 +10,4 @@ public class User
     public string PasswordHash { get; set; } = string.Empty;
     public UserRole Role { get; set; } = UserRole.User;
     public List<SavedStop> SavedStops { get; set; } = new();
-    public List<Notification> Notifications { get; set; } = new();
 }

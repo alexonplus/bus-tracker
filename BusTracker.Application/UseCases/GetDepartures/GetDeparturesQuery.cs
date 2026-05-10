@@ -3,4 +3,4 @@ using MediatR;
 
 namespace BusTracker.Application.UseCases.GetDepartures;
 
-public record GetDeparturesQuery(string StopExtId, int MaxDepartures = 20) : IRequest<List<Departure>>;
+public record GetDeparturesQuery(string StopId, int Max = 20) : IRequest<List<Departure>>;

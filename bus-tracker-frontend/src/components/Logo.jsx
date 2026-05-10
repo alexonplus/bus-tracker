@@ -16,10 +16,10 @@ export default function Logo({ subtitle }) {
         </div>
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <span style={{ fontFamily: 'var(--font-sans)', fontWeight: '800', fontSize: '22px', letterSpacing: '-0.8px', color: 'white', lineHeight: '1', textTransform: 'uppercase' }}>
-            Bus Tracker
+            Buss-Event
           </span>
           <span style={{ fontFamily: 'var(--font-display)', fontSize: '10px', letterSpacing: '1.5px', color: 'var(--accent)', fontWeight: '600', marginTop: '5px', textTransform: 'uppercase' }}>
-            {subtitle || 'Göteborg Hub'}
+            {subtitle || 'Göteborg'}
           </span>
         </div>
       </div>

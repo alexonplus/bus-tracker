@@ -1,6 +1,7 @@
-using BusTracker.Application.DTOs;
-using BusTracker.Application.Interfaces;
-using BusTracker.Domain.Enums;
+using BusTracker.API.Requests;
+using BusTracker.Application.UseCases.Admin.Commands;
+using BusTracker.Application.UseCases.Admin.Queries;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,39 +12,18 @@ namespace BusTracker.API.Controllers;
 [Authorize(Roles = "Admin")]
 public class AdminController : ControllerBase
 {
-    private readonly IUserRepository _userRepository;
+    private readonly IMediator _mediator;
 
-    public AdminController(IUserRepository userRepository)
+    public AdminController(IMediator mediator)
     {
-        _userRepository = userRepository;
+        _mediator = mediator;
     }
 
     [HttpGet("users")]
     public async Task<IActionResult> GetUsers(CancellationToken cancellationToken)
-    {
-        var users = await _userRepository.GetAllAsync(cancellationToken);
-        var dtos = users.Select(u => new UserDto
-        {
-            Id = u.Id,
-            Name = u.Name,
-            Email = u.Email,
-            Role = u.Role
-        });
-        return Ok(dtos);
-    }
+        => Ok(await _mediator.Send(new GetUsersQuery(), cancellationToken));
 
     [HttpPut("users/{id}/role")]
     public async Task<IActionResult> UpdateRole(int id, [FromBody] UpdateRoleRequest request, CancellationToken cancellationToken)
-    {
-        var user = await _userRepository.GetByIdAsync(id, cancellationToken);
-        if (user is null)
-            return NotFound();
-
-        user.Role = request.Role;
-        await _userRepository.UpdateAsync(user, cancellationToken);
-
-        return Ok(new UserDto { Id = user.Id, Name = user.Name, Email = user.Email, Role = user.Role });
-    }
+        => Ok(await _mediator.Send(new UpdateUserRoleCommand(id, request.Role), cancellationToken));
 }
-
-public record UpdateRoleRequest(UserRole Role);

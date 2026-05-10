@@ -14,12 +14,13 @@ public static class DependencyInjection
         IConfiguration config)
     {
         services.AddHttpClient<IResRobotService, ResRobotService>();
-        services.AddHttpClient<IGtfsRealtimeService, GtfsRealtimeService>();
+        services.AddScoped<ITokenService, TokenService>();
 
         services.AddDbContext<BusTrackerDbContext>(options =>
             options.UseSqlServer(config.GetConnectionString("DefaultConnection")));
         services.AddScoped<ISavedStopRepository, SavedStopRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IEventRepository, EventRepository>();
 
         return services;
     }

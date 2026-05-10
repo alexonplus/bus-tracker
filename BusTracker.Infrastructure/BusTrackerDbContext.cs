@@ -10,5 +10,6 @@ public class BusTrackerDbContext : DbContext
 
     public DbSet<User> Users { get; set; }
     public DbSet<SavedStop> SavedStops { get; set; }
-    public DbSet<Notification> Notifications { get; set; }
+    public DbSet<Event> Events { get; set; }
+    public DbSet<EventAttendance> EventAttendances { get; set; }
 }

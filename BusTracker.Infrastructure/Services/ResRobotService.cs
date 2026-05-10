@@ -63,6 +63,15 @@ public class ResRobotService : IResRobotService
             .ToList() ?? [];
     }
 
+    public async Task<object> PlanTripAsync(string fromExtId, string toExtId, DateTime dateTime, CancellationToken cancellationToken = default)
+    {
+        var date = dateTime.ToString("yyyy-MM-dd");
+        var time = dateTime.ToString("HH:mm");
+        var url = $"{BaseUrl}/trip?originExtId={fromExtId}&destExtId={toExtId}&date={date}&time={time}&accessId={_apiKey}&format=json&numF=3";
+        var response = await _http.GetFromJsonAsync<System.Text.Json.JsonElement>(url, cancellationToken);
+        return response;
+    }
+
     private static DateTime ParseDateTime(string date, string time)
     {
         var combined = $"{date} {time}";

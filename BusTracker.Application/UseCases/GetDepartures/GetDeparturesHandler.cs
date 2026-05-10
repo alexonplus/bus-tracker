@@ -6,13 +6,13 @@ namespace BusTracker.Application.UseCases.GetDepartures;
 
 public class GetDeparturesHandler : IRequestHandler<GetDeparturesQuery, List<Departure>>
 {
-    private readonly IResRobotService _resRobotService;
+    private readonly IResRobotService _service;
 
-    public GetDeparturesHandler(IResRobotService resRobotService)
+    public GetDeparturesHandler(IResRobotService service)
     {
-        _resRobotService = resRobotService;
+        _service = service;
     }
 
     public Task<List<Departure>> Handle(GetDeparturesQuery request, CancellationToken cancellationToken)
-        => _resRobotService.GetDeparturesAsync(request.StopExtId, request.MaxDepartures);
+        => _service.GetDeparturesAsync(request.StopId, request.Max);
 }
