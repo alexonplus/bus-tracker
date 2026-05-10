@@ -2,6 +2,7 @@ using AutoMapper;
 using BusTracker.Application.Behaviors;
 using BusTracker.Application.Interfaces;
 using BusTracker.Application.Mappings;
+using BusTracker.Application.UseCases.Events.Commands;
 using BusTracker.Application.UseCases.SavedStops.Commands;
 using BusTracker.Application.UseCases.SavedStops.Queries;
 using MediatR;
@@ -19,6 +20,7 @@ public static class DependencyInjection
         services.AddAutoMapper(typeof(MappingProfile));
 
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+        services.AddTransient<IRequestValidator<CreateEventCommand>, CreateEventCommandValidator>();
         services.AddTransient<IRequestValidator<AddSavedStopCommand>, AddSavedStopCommandValidator>();
         services.AddTransient<IRequestValidator<UpdateSavedStopCommand>, UpdateSavedStopCommandValidator>();
         services.AddTransient<IRequestValidator<DeleteSavedStopCommand>, DeleteSavedStopCommandValidator>();

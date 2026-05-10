@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { Heart, Search, MapPin, LogOut, ArrowRight, AlertTriangle, Trash2, Clock, Bus, Wind, Shield } from 'lucide-react'
+import { Heart, Search, MapPin, LogOut, ArrowRight, AlertTriangle, Trash2, Clock, Bus, Wind, Shield, Calendar } from 'lucide-react'
 import Logo from '../components/Logo'
 import { logout } from '../api/auth'
 import { isAdmin } from '../utils/jwt'
@@ -147,22 +147,23 @@ export default function Home() {
   }
 
   const navItems = [
-    { id: 'overview', label: 'Overview', ref: overviewRef },
-    { id: 'mystops', label: 'My Stops', ref: myStopsRef },
-    { id: 'alerts', label: 'Traffic Alerts', ref: alertsRef },
+    { id: 'overview', label: 'Översikt', ref: overviewRef },
+    { id: 'mystops', label: 'Mina hållplatser', ref: myStopsRef },
+    { id: 'alerts', label: 'Trafikstörningar', ref: alertsRef },
+    { id: 'events', label: 'Evenemang', ref: null, href: '/events' },
   ]
 
   return (
     <div className="app-wrapper dashboard-wrapper">
       <aside className="sidebar">
         <div className="logo-section">
-          <Logo subtitle="USER DASHBOARD • EST. 2026" />
+          <Logo subtitle="RESEPLANERAREN • 2026" />
         </div>
 
         <nav style={{ marginTop: '32px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
           {navItems.map(item => (
             <button key={item.id}
-              onClick={() => { setActiveSection(item.id); item.ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }}
+              onClick={() => { if (item.href) { window.location.href = item.href; return; } setActiveSection(item.id); item.ref?.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }}
               style={{ background: activeSection === item.id ? 'rgba(45,99,237,0.1)' : 'transparent', border: 'none', padding: '12px 16px', borderRadius: '10px', color: activeSection === item.id ? 'white' : 'var(--text-dim)', textAlign: 'left', cursor: 'pointer', fontSize: '14px', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '12px', transition: 'all 0.2s' }}>
               {activeSection === item.id && <div style={{ width: '4px', height: '14px', background: 'var(--accent)', borderRadius: '2px' }} />}
               {item.label}
@@ -194,7 +195,7 @@ export default function Home() {
             </button>
           )}
           <button onClick={handleLogout} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', padding: '12px', borderRadius: '12px', width: '100%', justifyContent: 'center', fontSize: '13px' }}>
-            <LogOut size={16} /> Sign Out
+            <LogOut size={16} /> Logga ut
           </button>
         </div>
       </aside>
@@ -202,7 +203,7 @@ export default function Home() {
       <nav className="mobile-nav">
         {navItems.map(item => (
           <button key={item.id} className={`mobile-nav-item ${activeSection === item.id ? 'active' : ''}`}
-            onClick={() => { setActiveSection(item.id); item.ref.current?.scrollIntoView({ behavior: 'smooth' }) }}>
+            onClick={() => { setActiveSection(item.id); item.ref?.current?.scrollIntoView({ behavior: 'smooth' }) }}>
             {item.id === 'overview' && <Search size={22} />}
             {item.id === 'mystops' && <Heart size={22} />}
             {item.id === 'alerts' && <AlertTriangle size={22} />}
@@ -217,7 +218,7 @@ export default function Home() {
 
           {/* Overview */}
           <div ref={overviewRef}>
-            <p style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '2px', color: 'var(--text-dim)', marginBottom: '16px' }}>Overview</p>
+            <p style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '2px', color: 'var(--text-dim)', marginBottom: '16px' }}>Översikt</p>
 
             <section style={{ position: 'relative', zIndex: 100, marginBottom: '24px' }}>
               <div style={{ position: 'relative' }}>
@@ -261,7 +262,7 @@ export default function Home() {
 
           {/* My Stops */}
           <div ref={myStopsRef}>
-            <p style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '2px', color: 'var(--text-dim)', marginBottom: '16px' }}>My Stops</p>
+            <p style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '2px', color: 'var(--text-dim)', marginBottom: '16px' }}>Mina hållplatser</p>
             <div style={{ background: 'var(--card-bg)', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.05)' }}>
               <div style={{ padding: '24px 28px', borderBottom: savedStops.length > 0 ? '1px solid rgba(255,255,255,0.05)' : 'none', display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <div style={{ background: 'rgba(45,99,237,0.1)', padding: '8px', borderRadius: '10px' }}>
@@ -296,7 +297,7 @@ export default function Home() {
 
           {/* Traffic Alerts */}
           <div ref={alertsRef}>
-            <p style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '2px', color: 'var(--text-dim)', marginBottom: '16px' }}>Traffic Alerts</p>
+            <p style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '2px', color: 'var(--text-dim)', marginBottom: '16px' }}>Trafikstörningar</p>
             <div style={{ background: 'var(--card-bg)', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.05)', padding: '28px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
                 <div style={{ background: 'rgba(255,160,0,0.1)', padding: '8px', borderRadius: '10px' }}>

@@ -10,6 +10,6 @@ public class MappingProfile : Profile
     {
         CreateMap<SavedStop, SavedStopDto>();
         CreateMap<User, UserDto>();
-        CreateMap<Notification, NotificationDto>();
+        CreateMap<Event, EventDto>();
     }
 }
