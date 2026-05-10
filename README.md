@@ -18,6 +18,18 @@ BusTracker.API             →  Thin controllers, Program.cs, Request models
 bus-tracker-frontend/      →  React SPA proxied to the API via Vite
 ```
 
+## Screenshots
+
+| Avgångstavla | Sparade hållplatser |
+|---|---|
+| ![Home](docs/screenshots/1-home.png) | ![Saved stops](docs/screenshots/2-saved-stops.png) |
+
+| Evenemang | Reseplanering |
+|---|---|
+| ![Events](docs/screenshots/3-events.png) | ![Trip planner](docs/screenshots/4-trip-planner.png) |
+
+![Reminder widget](docs/screenshots/5-reminder.png)
+
 ## Features
 
 - **Stop search** — live search against ResRobot, save favourite stops per user
