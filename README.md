@@ -43,11 +43,6 @@ npm run dev
 
 The app is available at `http://localhost:5173` (or the next free port). The API runs on `https://localhost:7xxx`.
 
-## Seed Accounts
-
-
-*12 seeded users in total with mixed RSVP responses, ratings, and "looking for company" flags across 14 events.*
-
 ## Secrets (user secrets)
 
 ```json
