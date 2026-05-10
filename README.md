@@ -43,16 +43,6 @@ npm run dev
 
 The app is available at `http://localhost:5173` (or the next free port). The API runs on `https://localhost:7xxx`.
 
-## Seed Accounts
-
-| Role  | Email                | Password   |
-|-------|----------------------|------------|
-| Admin | admin@bustrack.se    | Admin123!  |
-| User  | emma@example.se      | Pass123!   |
-| User  | oscar@example.se     | Pass123!   |
-
-*12 seeded users in total with mixed RSVP responses, ratings, and "looking for company" flags across 14 events.*
-
 ## Secrets (user secrets)
 
 ```json
