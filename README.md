@@ -1,6 +1,6 @@
 # BusTracker
 
-A real-time public transit app for Gothenburg, built as a school assignment (inlämningsuppgift). Covers stop search, live departures, event planning with RSVP, trip routing, and an admin panel.
+A real-time public transit app for Gothenburg.Covers stop search, live departures, event planning with RSVP, trip routing, and an admin panel.
 
 ## Tech Stack
 
