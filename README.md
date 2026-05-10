@@ -45,11 +45,6 @@ The app is available at `http://localhost:5173` (or the next free port). The API
 
 ## Seed Accounts
 
-| Role  | Email                | Password   |
-|-------|----------------------|------------|
-| Admin | admin@bustrack.se    | Admin123!  |
-| User  | emma@example.se      | Pass123!   |
-| User  | oscar@example.se     | Pass123!   |
 
 *12 seeded users in total with mixed RSVP responses, ratings, and "looking for company" flags across 14 events.*
 
