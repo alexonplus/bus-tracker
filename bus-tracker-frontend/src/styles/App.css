@@ -496,3 +496,106 @@ body::after {
 .departure-card:nth-child(6) { animation-delay: 0.30s; }
 .departure-card:nth-child(7) { animation-delay: 0.35s; }
 .departure-card:nth-child(8) { animation-delay: 0.40s; }
+
+/* ── SEARCH HISTORY ── */
+.search-history {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  margin-bottom: 20px;
+  animation: fadeSlideDown 0.3s ease;
+}
+
+.search-history.empty {
+  text-align: center;
+  color: var(--text-dim);
+  padding: 24px 16px;
+  font-size: 0.9rem;
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.history-header h3 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.clear-btn {
+  background: transparent;
+  border: 1px solid var(--glass-border);
+  color: var(--text-dim);
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.clear-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--text-dim);
+  color: var(--text);
+}
+
+.history-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.history-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background: var(--glass-hover);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.history-item:hover {
+  background: rgba(79, 127, 255, 0.1);
+  border-color: var(--accent-blue);
+}
+
+.history-text {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+.remove-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 2px 6px;
+  opacity: 0;
+  transition: all 0.2s ease;
+  margin-left: 8px;
+}
+
+.history-item:hover .remove-btn {
+  opacity: 1;
+  color: var(--red);
+}
+
+.remove-btn:hover {
+  text-shadow: 0 0 8px rgba(255, 68, 102, 0.5);
+}
