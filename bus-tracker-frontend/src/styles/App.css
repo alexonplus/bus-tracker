@@ -599,3 +599,110 @@ body::after {
 .remove-btn:hover {
   text-shadow: 0 0 8px rgba(255, 68, 102, 0.5);
 }
+
+/* ── FAVORITE ROUTES ── */
+.favorite-routes {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  margin-bottom: 20px;
+  animation: fadeSlideDown 0.3s ease;
+}
+
+.favorite-routes.empty {
+  text-align: center;
+  color: var(--text-dim);
+  padding: 24px 16px;
+  font-size: 0.9rem;
+}
+
+.favorite-routes h3 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+.routes-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.route-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  background: var(--glass-hover);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.route-item:hover {
+  background: rgba(139, 92, 246, 0.1);
+  border-color: var(--accent-violet);
+}
+
+.route-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.route-direction {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.route-direction .from,
+.route-direction .to {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.route-direction .arrow {
+  color: var(--accent-violet);
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
+.route-saved {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
+.remove-route-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: var(--orange);
+  opacity: 0.3;
+  transition: all 0.2s ease;
+  padding: 4px 8px;
+  margin-left: 8px;
+}
+
+.route-item:hover .remove-route-btn {
+  opacity: 1;
+  color: var(--accent-violet);
+}
+
+.remove-route-btn:hover {
+  text-shadow: 0 0 12px rgba(139, 92, 246, 0.6);
+  transform: scale(1.1);
+}
