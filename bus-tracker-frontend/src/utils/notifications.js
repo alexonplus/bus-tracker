@@ -1,3 +1,5 @@
+import { playNotificationSound } from './sound'
+
 const STORAGE_KEY = 'bus_tracker_notifications'
 
 export const createNotification = (options) => {
@@ -13,6 +15,13 @@ export const createNotification = (options) => {
 
 export const showNotification = (options) => {
   const notification = createNotification(options)
+
+  // Play sound
+  try {
+    playNotificationSound()
+  } catch (e) {
+    console.log('Sound not available')
+  }
 
   // Dispatch custom event
   window.dispatchEvent(
@@ -31,6 +40,14 @@ export const notificationTypes = {
 }
 
 export const notifications = {
+  stopSaved: (stopName) =>
+    showNotification({
+      type: notificationTypes.SUCCESS,
+      title: 'Stop saved',
+      message: stopName,
+      duration: 4000,
+    }),
+
   busNearby: (busLine, minutes) =>
     showNotification({
       type: notificationTypes.NEARBY,
