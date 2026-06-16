@@ -8,6 +8,7 @@ import { searchStops, getDepartures } from '../api/resrobot'
 import { getSavedStops, addSavedStop, deleteSavedStop } from '../api/savedStops'
 import { getWeather } from '../api/weather'
 import { formatTime } from '../utils/formatTime'
+import { notifications } from '../utils/notifications'
 
 function DeparturePanel({ stop, savedStops, onSave, onDelete }) {
   const [departures, setDepartures] = useState([])
@@ -126,7 +127,8 @@ export default function Home() {
     try {
       const saved = await addSavedStop(stop)
       setSavedStops(prev => [...prev, saved])
-    } catch (e) { console.error(e) }
+      notifications.routeSaved(stop.name, '')
+    } catch (e) { console.error(e); notifications.error('Failed to save stop') }
   }
 
   const handleDelete = async (id) => {
