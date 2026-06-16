@@ -13,6 +13,7 @@ import { notifications } from '../utils/notifications'
 function DeparturePanel({ stop, savedStops, onSave, onDelete }) {
   const [departures, setDepartures] = useState([])
   const [loading, setLoading] = useState(true)
+  const [, setTime] = useState(0)
 
   const savedEntry = savedStops.find(
     s => s.stopId === (stop.id || stop.extId) || s.stopExtId === stop.extId
@@ -26,6 +27,11 @@ function DeparturePanel({ stop, savedStops, onSave, onDelete }) {
       .catch(() => setDepartures([]))
       .finally(() => setLoading(false))
   }, [stop.id, stop.extId])
+
+  useEffect(() => {
+    const interval = setInterval(() => setTime(t => t + 1), 1000)
+    return () => clearInterval(interval)
+  }, [])
 
   const delayed = departures.filter(d => d.isDelayed)
 
@@ -63,7 +69,11 @@ function DeparturePanel({ stop, savedStops, onSave, onDelete }) {
           <div style={{ padding: '32px', textAlign: 'center', color: 'var(--text-dim)' }}>Inga avgångar hittades.</div>
         ) : departures.slice(0, 10).map((dep, i) => (
           <div key={i}
-            style={{ display: 'flex', alignItems: 'center', padding: '14px 28px', borderBottom: i < 9 ? '1px solid rgba(255,255,255,0.04)' : 'none', background: dep.isDelayed ? 'rgba(255,160,0,0.03)' : 'transparent' }}
+            onClick={() => {
+              addWatchedBus(dep.lineNumber, stop.name, dep.departureTime)
+              notifications.busNearby(dep.lineNumber, Math.ceil(dep.minutesUntilDeparture))
+            }}
+            style={{ display: 'flex', alignItems: 'center', padding: '14px 28px', borderBottom: i < 9 ? '1px solid rgba(255,255,255,0.04)' : 'none', background: dep.isDelayed ? 'rgba(255,160,0,0.03)' : 'transparent', cursor: 'pointer' }}
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = dep.isDelayed ? 'rgba(255,160,0,0.05)' : 'rgba(255,255,255,0.02)'}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = dep.isDelayed ? 'rgba(255,160,0,0.03)' : 'transparent'}
           >
@@ -110,6 +120,15 @@ export default function Home() {
   useEffect(() => {
     getSavedStops().then(setSavedStops).catch(() => {})
     getWeather().then(setWeather).catch(() => {})
+
+    const interval = setInterval(() => {
+      const toNotify = checkWatchedBuses()
+      toNotify.forEach(bus => {
+        notifications.busNearby(bus.busLine, 5)
+      })
+    }, 5000)
+
+    return () => clearInterval(interval)
   }, [])
 
   useEffect(() => {
