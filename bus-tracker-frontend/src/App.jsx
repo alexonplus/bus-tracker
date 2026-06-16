@@ -6,6 +6,7 @@ import AdminEvents from './pages/AdminEvents'
 import Events from './pages/Events'
 import ProtectedRoute from './components/ProtectedRoute'
 import PlanReminderWidget from './components/PlanReminderWidget'
+import NotificationCenter from './components/NotificationCenter'
 import { isAdmin } from './utils/jwt'
 
 function AdminRoute({ children }) {
@@ -17,6 +18,7 @@ export default function App() {
   return (
     <Router>
       <PlanReminderWidget />
+      <NotificationCenter />
       <Routes>
         <Route path="/login" element={<Auth />} />
         <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
