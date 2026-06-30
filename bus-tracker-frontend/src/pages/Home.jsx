@@ -1,15 +1,13 @@
 import { useState, useEffect, useRef } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { Heart, Search, MapPin, LogOut, ArrowRight, AlertTriangle, Trash2, Clock, Bus, Wind, Shield, Calendar } from 'lucide-react'
-import Logo from '../components/Logo'
+import { Heart, Search, MapPin, LogOut, ArrowRight, AlertTriangle, Trash2,Bus } from 'lucide-react'
 import { logout } from '../api/auth'
-import { isAdmin } from '../utils/jwt'
-import { searchStops, getDepartures } from '../api/resrobot'
 import { getSavedStops, addSavedStop, deleteSavedStop } from '../api/savedStops'
 import { getWeather } from '../api/weather'
-import { formatTime } from '../utils/formatTime'
 import { notifications } from '../utils/notifications'
 import DeparturePanel from '../components/DeparturePanel'
+import Sider from './Sider'
+import { searchStops } from '../api/resrobot'
 
 import { checkWatchedBuses } from '../utils/watchedBuses'
 
@@ -78,59 +76,23 @@ export default function Home() {
     overviewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
-  const navItems = [
-    { id: 'overview', label: 'Översikt', ref: overviewRef },
-    { id: 'mystops', label: 'Mina hållplatser', ref: myStopsRef },
-    { id: 'alerts', label: 'Trafikstörningar', ref: alertsRef },
-    { id: 'events', label: 'Evenemang', ref: null, href: '/events' },
-  ]
+const navItems = [
+  { id: 'overview', label: 'Översikt', ref: overviewRef, onClick: () => { setActiveSection('overview'); overviewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }},
+  { id: 'mystops', label: 'Mina hållplatser', ref: myStopsRef, onClick: () => { setActiveSection('mystops'); myStopsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }},
+  { id: 'alerts', label: 'Trafikstörningar', ref: alertsRef, onClick: () => { setActiveSection('alerts'); alertsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }},
+  { id: 'events', label: 'Evenemang', ref: null, onClick: () => { window.location.href = '/events' }},
+]
 
   return (
     <div className="app-wrapper dashboard-wrapper">
-      <aside className="sidebar">
-        <div className="logo-section">
-          <Logo subtitle="RESEPLANERAREN • 2026" />
-        </div>
 
-        <nav style={{ marginTop: '32px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          {navItems.map(item => (
-            <button key={item.id}
-              onClick={() => { if (item.href) { window.location.href = item.href; return; } setActiveSection(item.id); item.ref?.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }}
-              style={{ background: activeSection === item.id ? 'rgba(45,99,237,0.1)' : 'transparent', border: 'none', padding: '12px 16px', borderRadius: '10px', color: activeSection === item.id ? 'white' : 'var(--text-dim)', textAlign: 'left', cursor: 'pointer', fontSize: '14px', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '12px', transition: 'all 0.2s' }}>
-              {activeSection === item.id && <div style={{ width: '4px', height: '14px', background: 'var(--accent)', borderRadius: '2px' }} />}
-              {item.label}
-            </button>
-          ))}
-        </nav>
-
-        {weather && (
-          <div style={{ marginTop: '32px', padding: '20px', background: 'rgba(255,255,255,0.03)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
-            <p style={{ color: 'var(--text-dim)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: '12px' }}>Göteborg</p>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <span style={{ fontSize: '32px' }}>{weather.icon}</span>
-              <div>
-                <div style={{ fontSize: '28px', fontWeight: '700', lineHeight: 1 }}>{weather.temp}°</div>
-                <div style={{ fontSize: '12px', color: 'var(--text-dim)', marginTop: '4px' }}>{weather.label}</div>
-              </div>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '12px', color: 'var(--text-dim)', fontSize: '12px' }}>
-              <Wind size={13} /> {weather.wind} m/s
-            </div>
-          </div>
-        )}
-
-        <div className="sidebar-footer" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          {isAdmin() && (
-            <button onClick={() => window.location.href = '/admin'}
-              style={{ background: 'rgba(45,99,237,0.1)', border: '1px solid rgba(45,99,237,0.2)', color: 'var(--accent)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', padding: '12px', borderRadius: '12px', width: '100%', justifyContent: 'center', fontSize: '13px', fontWeight: '600' }}>
-              <Shield size={16} /> Admin Panel
-            </button>
-          )}
-          <button onClick={handleLogout} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', padding: '12px', borderRadius: '12px', width: '100%', justifyContent: 'center', fontSize: '13px' }}>
-            <LogOut size={16} /> Logga ut
-          </button>
-        </div>
-      </aside>
+      <Sider
+      weather={weather}
+      navItems={navItems}
+      activeSection={activeSection}
+      onLogout={handleLogout}
+    />
+      
 
       <nav className="mobile-nav">
         {navItems.map(item => (
