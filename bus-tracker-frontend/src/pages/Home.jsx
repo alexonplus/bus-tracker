@@ -1,108 +1,17 @@
 import { useState, useEffect, useRef } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { Heart, Search, MapPin, LogOut, ArrowRight, AlertTriangle, Trash2, Clock, Bus, Wind, Shield, Calendar } from 'lucide-react'
-import Logo from '../components/Logo'
+import { Heart, Search, MapPin, LogOut, ArrowRight, AlertTriangle, Trash2,Bus } from 'lucide-react'
 import { logout } from '../api/auth'
-import { isAdmin } from '../utils/jwt'
-import { searchStops, getDepartures } from '../api/resrobot'
 import { getSavedStops, addSavedStop, deleteSavedStop } from '../api/savedStops'
 import { getWeather } from '../api/weather'
-import { formatTime } from '../utils/formatTime'
 import { notifications } from '../utils/notifications'
+import DeparturePanel from '../components/DeparturePanel'
+import Sider from './Sider'
+import { searchStops } from '../api/resrobot'
 
-function DeparturePanel({ stop, savedStops, onSave, onDelete }) {
-  const [departures, setDepartures] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [, setTime] = useState(0)
+import { checkWatchedBuses } from '../utils/watchedBuses'
 
-  const savedEntry = savedStops.find(
-    s => s.stopId === (stop.id || stop.extId) || s.stopExtId === stop.extId
-  )
 
-  useEffect(() => {
-    setLoading(true)
-    setDepartures([])
-    getDepartures(stop.extId || stop.id)
-      .then(setDepartures)
-      .catch(() => setDepartures([]))
-      .finally(() => setLoading(false))
-  }, [stop.id, stop.extId])
-
-  useEffect(() => {
-    const interval = setInterval(() => setTime(t => t + 1), 1000)
-    return () => clearInterval(interval)
-  }, [])
-
-  const delayed = departures.filter(d => d.isDelayed)
-
-  return (
-    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
-      style={{ background: 'var(--card-bg)', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.08)', overflow: 'hidden' }}
-    >
-      <div style={{ padding: '24px 28px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <h3 style={{ fontSize: '20px', fontWeight: '700', letterSpacing: '-0.3px' }}>{stop.name}</h3>
-          <p style={{ color: 'var(--text-dim)', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', marginTop: '4px' }}>Avgångar i realtid</p>
-        </div>
-        <button
-          onClick={() => savedEntry ? onDelete(savedEntry.id) : onSave(stop)}
-          style={{ background: savedEntry ? 'rgba(45,99,237,0.15)' : 'rgba(255,255,255,0.05)', border: 'none', borderRadius: '12px', padding: '10px 16px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', color: savedEntry ? 'var(--accent)' : 'var(--text-dim)', fontSize: '13px', fontWeight: '600' }}
-        >
-          <Heart size={16} fill={savedEntry ? 'var(--accent)' : 'none'} />
-          {savedEntry ? 'Sparad' : 'Spara'}
-        </button>
-      </div>
-
-      {delayed.length > 0 && (
-        <div style={{ padding: '12px 28px', background: 'rgba(255,160,0,0.07)', borderBottom: '1px solid rgba(255,160,0,0.15)', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <AlertTriangle size={15} color="#ffa500" />
-          <span style={{ fontSize: '13px', color: '#ffa500' }}>
-            {delayed.length} avgång{delayed.length > 1 ? 'ar' : ''} är försenad{delayed.length > 1 ? 'e' : ''}
-          </span>
-        </div>
-      )}
-
-      <div style={{ padding: '8px 0' }}>
-        {loading ? (
-          <div style={{ padding: '32px', textAlign: 'center', color: 'var(--text-dim)' }}>Laddar avgångar...</div>
-        ) : departures.length === 0 ? (
-          <div style={{ padding: '32px', textAlign: 'center', color: 'var(--text-dim)' }}>Inga avgångar hittades.</div>
-        ) : departures.slice(0, 10).map((dep, i) => (
-          <div key={i}
-            onClick={() => {
-              addWatchedBus(dep.lineNumber, stop.name, dep.departureTime)
-              notifications.busNearby(dep.lineNumber, Math.ceil(dep.minutesUntilDeparture))
-            }}
-            style={{ display: 'flex', alignItems: 'center', padding: '14px 28px', borderBottom: i < 9 ? '1px solid rgba(255,255,255,0.04)' : 'none', background: dep.isDelayed ? 'rgba(255,160,0,0.03)' : 'transparent', cursor: 'pointer' }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = dep.isDelayed ? 'rgba(255,160,0,0.05)' : 'rgba(255,255,255,0.02)'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = dep.isDelayed ? 'rgba(255,160,0,0.03)' : 'transparent'}
-          >
-            <div style={{ width: '44px', height: '36px', backgroundColor: dep.isDelayed ? '#c17800' : 'var(--accent)', color: 'white', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '14px', marginRight: '16px', flexShrink: 0 }}>
-              {dep.lineNumber}
-            </div>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: '15px', fontWeight: '500' }}>{dep.direction}</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '3px' }}>
-                {dep.isDelayed
-                  ? <><div style={{ width: '5px', height: '5px', backgroundColor: '#ffa500', borderRadius: '50%' }} /><span style={{ fontSize: '11px', color: '#ffa500' }}>Försenad</span></>
-                  : dep.realtimeTime
-                    ? <><div style={{ width: '5px', height: '5px', backgroundColor: '#00ff88', borderRadius: '50%' }} /><span style={{ fontSize: '11px', color: '#00ff88' }}>Live</span></>
-                    : <span style={{ fontSize: '11px', color: 'var(--text-dim)' }}>Planerad</span>
-                }
-              </div>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <Clock size={12} style={{ color: 'var(--text-dim)' }} />
-              <span style={{ fontSize: '18px', fontWeight: '700', color: dep.minutesUntilDeparture === 0 ? '#00ff88' : dep.isDelayed ? '#ffa500' : 'white', minWidth: '60px', textAlign: 'right' }}>
-                {formatTime(dep)}
-              </span>
-            </div>
-          </div>
-        ))}
-      </div>
-    </motion.div>
-  )
-}
 
 export default function Home() {
   const [searchTerm, setSearchTerm] = useState('')
@@ -167,59 +76,23 @@ export default function Home() {
     overviewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
-  const navItems = [
-    { id: 'overview', label: 'Översikt', ref: overviewRef },
-    { id: 'mystops', label: 'Mina hållplatser', ref: myStopsRef },
-    { id: 'alerts', label: 'Trafikstörningar', ref: alertsRef },
-    { id: 'events', label: 'Evenemang', ref: null, href: '/events' },
-  ]
+const navItems = [
+  { id: 'overview', label: 'Översikt', ref: overviewRef, onClick: () => { setActiveSection('overview'); overviewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }},
+  { id: 'mystops', label: 'Mina hållplatser', ref: myStopsRef, onClick: () => { setActiveSection('mystops'); myStopsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }},
+  { id: 'alerts', label: 'Trafikstörningar', ref: alertsRef, onClick: () => { setActiveSection('alerts'); alertsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }},
+  { id: 'events', label: 'Evenemang', ref: null, onClick: () => { window.location.href = '/events' }},
+]
 
   return (
     <div className="app-wrapper dashboard-wrapper">
-      <aside className="sidebar">
-        <div className="logo-section">
-          <Logo subtitle="RESEPLANERAREN • 2026" />
-        </div>
 
-        <nav style={{ marginTop: '32px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          {navItems.map(item => (
-            <button key={item.id}
-              onClick={() => { if (item.href) { window.location.href = item.href; return; } setActiveSection(item.id); item.ref?.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }}
-              style={{ background: activeSection === item.id ? 'rgba(45,99,237,0.1)' : 'transparent', border: 'none', padding: '12px 16px', borderRadius: '10px', color: activeSection === item.id ? 'white' : 'var(--text-dim)', textAlign: 'left', cursor: 'pointer', fontSize: '14px', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '12px', transition: 'all 0.2s' }}>
-              {activeSection === item.id && <div style={{ width: '4px', height: '14px', background: 'var(--accent)', borderRadius: '2px' }} />}
-              {item.label}
-            </button>
-          ))}
-        </nav>
-
-        {weather && (
-          <div style={{ marginTop: '32px', padding: '20px', background: 'rgba(255,255,255,0.03)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
-            <p style={{ color: 'var(--text-dim)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: '12px' }}>Göteborg</p>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <span style={{ fontSize: '32px' }}>{weather.icon}</span>
-              <div>
-                <div style={{ fontSize: '28px', fontWeight: '700', lineHeight: 1 }}>{weather.temp}°</div>
-                <div style={{ fontSize: '12px', color: 'var(--text-dim)', marginTop: '4px' }}>{weather.label}</div>
-              </div>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '12px', color: 'var(--text-dim)', fontSize: '12px' }}>
-              <Wind size={13} /> {weather.wind} m/s
-            </div>
-          </div>
-        )}
-
-        <div className="sidebar-footer" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          {isAdmin() && (
-            <button onClick={() => window.location.href = '/admin'}
-              style={{ background: 'rgba(45,99,237,0.1)', border: '1px solid rgba(45,99,237,0.2)', color: 'var(--accent)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', padding: '12px', borderRadius: '12px', width: '100%', justifyContent: 'center', fontSize: '13px', fontWeight: '600' }}>
-              <Shield size={16} /> Admin Panel
-            </button>
-          )}
-          <button onClick={handleLogout} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', padding: '12px', borderRadius: '12px', width: '100%', justifyContent: 'center', fontSize: '13px' }}>
-            <LogOut size={16} /> Logga ut
-          </button>
-        </div>
-      </aside>
+      <Sider
+      weather={weather}
+      navItems={navItems}
+      activeSection={activeSection}
+      onLogout={handleLogout}
+    />
+      
 
       <nav className="mobile-nav">
         {navItems.map(item => (
