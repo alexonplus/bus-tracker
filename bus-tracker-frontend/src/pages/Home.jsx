@@ -6,8 +6,6 @@ import { getSavedStops, addSavedStop, deleteSavedStop } from '../api/savedStops'
 import { getWeather } from '../api/weather'
 import { notifications } from '../utils/notifications'
 import DeparturePanel from '../components/DeparturePanel'
-import Sider from './Sider'
-import { searchStops } from '../api/resrobot'
 
 import { checkWatchedBuses } from '../utils/watchedBuses'
 
