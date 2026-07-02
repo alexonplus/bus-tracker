@@ -1,21 +1,17 @@
 import { useState, useEffect, useRef } from 'react'
-import { AnimatePresence, motion } from 'motion/react'
-import { Heart, Search, MapPin, LogOut, ArrowRight, AlertTriangle, Trash2,Bus } from 'lucide-react'
+import { AnimatePresence } from 'motion/react'
+import { Heart, AlertTriangle, Trash2, Bus, MapPin } from 'lucide-react'
 import { logout } from '../api/auth'
 import { getSavedStops, addSavedStop, deleteSavedStop } from '../api/savedStops'
 import { getWeather } from '../api/weather'
 import { notifications } from '../utils/notifications'
 import DeparturePanel from '../components/DeparturePanel'
-
+import Sider from './Sider'
+import StopSearch from '../components/StopSearch' // <-- DIN NYA IMPORT HÄR!
 import { checkWatchedBuses } from '../utils/watchedBuses'
 
-
-
 export default function Home() {
-  const [searchTerm, setSearchTerm] = useState('')
-  const [searchResults, setSearchResults] = useState([])
   const [selectedStop, setSelectedStop] = useState(null)
-  const [searching, setSearching] = useState(false)
   const [savedStops, setSavedStops] = useState([])
   const [weather, setWeather] = useState(null)
   const [activeSection, setActiveSection] = useState('overview')
@@ -38,17 +34,6 @@ export default function Home() {
     return () => clearInterval(interval)
   }, [])
 
-  useEffect(() => {
-    if (!searchTerm.trim()) { setSearchResults([]); return }
-    const timer = setTimeout(async () => {
-      setSearching(true)
-      try { setSearchResults((await searchStops(searchTerm)) || []) }
-      catch { setSearchResults([]) }
-      finally { setSearching(false) }
-    }, 400)
-    return () => clearTimeout(timer)
-  }, [searchTerm])
-
   const handleSave = async (stop) => {
     try {
       const saved = await addSavedStop(stop)
@@ -66,43 +51,41 @@ export default function Home() {
 
   const handleLogout = () => { logout(); window.location.href = '/login' }
 
+  // Denna funktion skickas nu ner som en "prop" till din StopSearch-komponent
   const selectStop = (stop) => {
     setSelectedStop(stop)
-    setSearchTerm('')
-    setSearchResults([])
     setActiveSection('overview')
     overviewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
-const navItems = [
-  { id: 'overview', label: 'Översikt', ref: overviewRef, onClick: () => { setActiveSection('overview'); overviewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }},
-  { id: 'mystops', label: 'Mina hållplatser', ref: myStopsRef, onClick: () => { setActiveSection('mystops'); myStopsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }},
-  { id: 'alerts', label: 'Trafikstörningar', ref: alertsRef, onClick: () => { setActiveSection('alerts'); alertsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }},
-  { id: 'events', label: 'Evenemang', ref: null, onClick: () => { window.location.href = '/events' }},
-]
+  const navItems = [
+    { id: 'overview', label: 'Översikt', ref: overviewRef, onClick: () => { setActiveSection('overview'); overviewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }},
+    { id: 'mystops', label: 'Mina hållplatser', ref: myStopsRef, onClick: () => { setActiveSection('mystops'); myStopsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }},
+    { id: 'alerts', label: 'Trafikstörningar', ref: alertsRef, onClick: () => { setActiveSection('alerts'); alertsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }},
+    { id: 'events', label: 'Evenemang', ref: null, onClick: () => { window.location.href = '/events' }},
+  ]
 
   return (
     <div className="app-wrapper dashboard-wrapper">
 
       <Sider
-      weather={weather}
-      navItems={navItems}
-      activeSection={activeSection}
-      onLogout={handleLogout}
-    />
-      
+        weather={weather}
+        navItems={navItems}
+        activeSection={activeSection}
+        onLogout={handleLogout}
+      />
 
       <nav className="mobile-nav">
         {navItems.map(item => (
           <button key={item.id} className={`mobile-nav-item ${activeSection === item.id ? 'active' : ''}`}
             onClick={() => { setActiveSection(item.id); item.ref?.current?.scrollIntoView({ behavior: 'smooth' }) }}>
-            {item.id === 'overview' && <Search size={22} />}
+            {item.id === 'overview' && <Heart size={22} />} {/* Ändrade till lämplig ikon eller behåll din logik */}
             {item.id === 'mystops' && <Heart size={22} />}
             {item.id === 'alerts' && <AlertTriangle size={22} />}
             <span>{item.label}</span>
           </button>
         ))}
-        <button className="mobile-nav-item" onClick={handleLogout}><LogOut size={22} /><span>Logga ut</span></button>
+        <button className="mobile-nav-item" onClick={handleLogout}><Bus size={22} /><span>Logga ut</span></button>
       </nav>
 
       <main className="auth-main" style={{ justifyContent: 'flex-start', paddingTop: '40px', paddingBottom: '40px', overflowY: 'auto' }}>
@@ -112,36 +95,9 @@ const navItems = [
           <div ref={overviewRef}>
             <p style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '2px', color: 'var(--text-dim)', marginBottom: '16px' }}>Översikt</p>
 
+            {/* SÖK-SEKTIONEN ÄR NU BARA EN RAD KOD! */}
             <section style={{ position: 'relative', zIndex: 100, marginBottom: '24px' }}>
-              <div style={{ position: 'relative' }}>
-                <Search style={{ position: 'absolute', left: '20px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-dim)', opacity: 0.5 }} size={20} />
-                <input type="text" placeholder="Sök hållplats (t.ex. Brunnsparken, Korsvägen)..."
-                  value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
-                  style={{ width: '100%', padding: '20px 20px 20px 56px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.1)', background: 'var(--card-bg)', color: 'white', fontSize: '16px', outline: 'none', boxShadow: '0 10px 40px rgba(0,0,0,0.3)' }}
-                />
-              </div>
-              <AnimatePresence>
-                {searchTerm && (searchResults.length > 0 || searching) && (
-                  <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-                    style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: 'var(--card-bg)', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.1)', marginTop: '12px', boxShadow: '0 30px 60px rgba(0,0,0,0.5)', zIndex: 200, overflow: 'hidden' }}
-                  >
-                    {searching ? <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-dim)' }}>Söker...</div>
-                      : searchResults.map((stop, i) => (
-                        <button key={i} onClick={() => selectStop(stop)}
-                          style={{ width: '100%', textAlign: 'left', padding: '18px 24px', background: 'none', border: 'none', borderBottom: '1px solid rgba(255,255,255,0.05)', color: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
-                          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.03)'}
-                          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                        >
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                            <MapPin size={20} color="var(--accent)" />
-                            <span style={{ fontSize: '15px' }}>{stop.name}</span>
-                          </div>
-                          <ArrowRight size={18} color="var(--text-dim)" />
-                        </button>
-                      ))}
-                  </motion.div>
-                )}
-              </AnimatePresence>
+              <StopSearch onSelectStop={selectStop} currentStop={selectedStop} />
             </section>
 
             <AnimatePresence mode="wait">
