@@ -1,0 +1,6 @@
+.sectionLabel { font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: var(--text-dim); margin-bottom: 16px; }
+.card { background: var(--card-bg); border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.05); overflow: hidden; }
+.stopItem { display: flex; align-items: center; justify-content: space-between; padding: 16px 28px; border-bottom: 1px solid rgba(255, 255, 255, 0.04); cursor: pointer; transition: background 0.15s; }
+.stopItem:hover { background: rgba(255, 255, 255, 0.02); }
+.alertCard { background: var(--card-bg); border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.05); padding: 28px; }
+.header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
