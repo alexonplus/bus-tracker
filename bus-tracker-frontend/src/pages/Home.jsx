@@ -1,14 +1,15 @@
 import { useState, useEffect, useRef } from 'react'
 import { AnimatePresence } from 'motion/react'
-import { Heart, AlertTriangle, Trash2, Bus, MapPin } from 'lucide-react'
+import { Heart, AlertTriangle, Trash2, Bus } from 'lucide-react'
 import { logout } from '../api/auth'
 import { getSavedStops, addSavedStop, deleteSavedStop } from '../api/savedStops'
 import { getWeather } from '../api/weather'
 import { notifications } from '../utils/notifications'
 import DeparturePanel from '../components/DeparturePanel'
 import Sider from './Sider'
-import StopSearch from '../components/StopSearch' // <-- DIN NYA IMPORT HÄR!
+import StopSearch from '../components/StopSearch'
 import { checkWatchedBuses } from '../utils/watchedBuses'
+import styles from '../styles/Home.module.css'
 
 export default function Home() {
   const [selectedStop, setSelectedStop] = useState(null)
@@ -23,23 +24,13 @@ export default function Home() {
   useEffect(() => {
     getSavedStops().then(setSavedStops).catch(() => {})
     getWeather().then(setWeather).catch(() => {})
-
-    const interval = setInterval(() => {
-      const toNotify = checkWatchedBuses()
-      toNotify.forEach(bus => {
-        notifications.busNearby(bus.busLine, 5)
-      })
-    }, 5000)
-
-    return () => clearInterval(interval)
   }, [])
 
   const handleSave = async (stop) => {
     try {
       const saved = await addSavedStop(stop)
       setSavedStops(prev => [...prev, saved])
-      notifications.routeSaved(stop.name, '')
-    } catch (e) { console.error(e); notifications.error('Failed to save stop') }
+    } catch (e) { console.error(e) }
   }
 
   const handleDelete = async (id) => {
@@ -51,122 +42,53 @@ export default function Home() {
 
   const handleLogout = () => { logout(); window.location.href = '/login' }
 
-  // Denna funktion skickas nu ner som en "prop" till din StopSearch-komponent
   const selectStop = (stop) => {
     setSelectedStop(stop)
     setActiveSection('overview')
-    overviewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
   const navItems = [
-    { id: 'overview', label: 'Översikt', ref: overviewRef, onClick: () => { setActiveSection('overview'); overviewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }},
-    { id: 'mystops', label: 'Mina hållplatser', ref: myStopsRef, onClick: () => { setActiveSection('mystops'); myStopsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }},
-    { id: 'alerts', label: 'Trafikstörningar', ref: alertsRef, onClick: () => { setActiveSection('alerts'); alertsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }},
-    { id: 'events', label: 'Evenemang', ref: null, onClick: () => { window.location.href = '/events' }},
+    { id: 'overview', label: 'Översikt', ref: overviewRef },
+    { id: 'mystops', label: 'Mina hållplatser', ref: myStopsRef },
+    { id: 'alerts', label: 'Trafikstörningar', ref: alertsRef }
   ]
 
   return (
     <div className="app-wrapper dashboard-wrapper">
-
-      <Sider
-        weather={weather}
-        navItems={navItems}
-        activeSection={activeSection}
-        onLogout={handleLogout}
-      />
-
-      <nav className="mobile-nav">
-        {navItems.map(item => (
-          <button key={item.id} className={`mobile-nav-item ${activeSection === item.id ? 'active' : ''}`}
-            onClick={() => { setActiveSection(item.id); item.ref?.current?.scrollIntoView({ behavior: 'smooth' }) }}>
-            {item.id === 'overview' && <Heart size={22} />} {/* Ändrade till lämplig ikon eller behåll din logik */}
-            {item.id === 'mystops' && <Heart size={22} />}
-            {item.id === 'alerts' && <AlertTriangle size={22} />}
-            <span>{item.label}</span>
-          </button>
-        ))}
-        <button className="mobile-nav-item" onClick={handleLogout}><Bus size={22} /><span>Logga ut</span></button>
-      </nav>
-
-      <main className="auth-main" style={{ justifyContent: 'flex-start', paddingTop: '40px', paddingBottom: '40px', overflowY: 'auto' }}>
+      <Sider weather={weather} navItems={navItems} activeSection={activeSection} onLogout={handleLogout} />
+      <main className="auth-main">
         <div style={{ width: '100%', maxWidth: '860px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-
-          {/* Overview */}
+          
           <div ref={overviewRef}>
-            <p style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '2px', color: 'var(--text-dim)', marginBottom: '16px' }}>Översikt</p>
-
-            {/* SÖK-SEKTIONEN ÄR NU BARA EN RAD KOD! */}
-            <section style={{ position: 'relative', zIndex: 100, marginBottom: '24px' }}>
-              <StopSearch onSelectStop={selectStop} currentStop={selectedStop} />
-            </section>
-
+            <p className={styles.sectionLabel}>Översikt</p>
+            <StopSearch onSelectStop={selectStop} currentStop={selectedStop} />
             <AnimatePresence mode="wait">
-              {selectedStop && (
-                <DeparturePanel key={selectedStop.id || selectedStop.extId} stop={selectedStop}
-                  savedStops={savedStops} onSave={handleSave} onDelete={handleDelete} />
-              )}
+              {selectedStop && <DeparturePanel key={selectedStop.id} stop={selectedStop} savedStops={savedStops} onSave={handleSave} onDelete={handleDelete} />}
             </AnimatePresence>
           </div>
 
-          {/* My Stops */}
           <div ref={myStopsRef}>
-            <p style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '2px', color: 'var(--text-dim)', marginBottom: '16px' }}>Mina hållplatser</p>
-            <div style={{ background: 'var(--card-bg)', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.05)' }}>
-              <div style={{ padding: '24px 28px', borderBottom: savedStops.length > 0 ? '1px solid rgba(255,255,255,0.05)' : 'none', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <div style={{ background: 'rgba(45,99,237,0.1)', padding: '8px', borderRadius: '10px' }}>
-                  <Heart size={18} style={{ color: 'var(--accent)' }} />
-                </div>
-                <h3 style={{ fontSize: '16px', fontWeight: '600' }}>Mina sparade hållplatser</h3>
-              </div>
-              {savedStops.length === 0 ? (
-                <div style={{ padding: '40px 28px', textAlign: 'center' }}>
-                  <Bus size={28} color="var(--text-dim)" opacity={0.3} style={{ marginBottom: '12px' }} />
-                  <p style={{ color: 'var(--text-dim)', fontSize: '14px', fontStyle: 'italic' }}>Sök en hållplats och klicka på "Spara" för att lägga till den här.</p>
-                </div>
-              ) : savedStops.map((stop, i) => (
-                <div key={stop.id}
-                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 28px', borderBottom: i < savedStops.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none', cursor: 'pointer', background: selectedStop?.name === stop.stopName ? 'rgba(45,99,237,0.06)' : 'transparent', transition: 'background 0.15s' }}
-                  onClick={() => selectStop({ id: stop.stopId, extId: stop.stopExtId, name: stop.stopName })}
-                  onMouseEnter={(e) => { if (selectedStop?.name !== stop.stopName) e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.02)' }}
-                  onMouseLeave={(e) => { if (selectedStop?.name !== stop.stopName) e.currentTarget.style.backgroundColor = 'transparent' }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                    <MapPin size={18} color={selectedStop?.name === stop.stopName ? 'var(--accent)' : 'var(--text-dim)'} />
-                    <span style={{ fontSize: '15px', fontWeight: '500' }}>{stop.stopName}</span>
-                  </div>
-                  <button onClick={(e) => { e.stopPropagation(); handleDelete(stop.id) }}
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '6px', color: 'var(--text-dim)', opacity: 0.4 }}>
-                    <Trash2 size={15} />
-                  </button>
+            <p className={styles.sectionLabel}>Mina hållplatser</p>
+            <div className={styles.card}>
+              {savedStops.map((stop) => (
+                <div key={stop.id} className={styles.stopItem} onClick={() => selectStop({ id: stop.stopId, name: stop.stopName })}>
+                  {stop.stopName}
+                  <button onClick={(e) => { e.stopPropagation(); handleDelete(stop.id) }}><Trash2 size={15} /></button>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Traffic Alerts */}
           <div ref={alertsRef}>
-            <p style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '2px', color: 'var(--text-dim)', marginBottom: '16px' }}>Trafikstörningar</p>
-            <div style={{ background: 'var(--card-bg)', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.05)', padding: '28px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
-                <div style={{ background: 'rgba(255,160,0,0.1)', padding: '8px', borderRadius: '10px' }}>
-                  <AlertTriangle size={18} style={{ color: '#ffa500' }} />
-                </div>
-                <h3 style={{ fontSize: '16px', fontWeight: '600' }}>Trafikstörningar</h3>
+            <p className={styles.sectionLabel}>Trafikstörningar</p>
+            <div className={styles.alertCard}>
+              <div className={styles.header}>
+                <AlertTriangle size={18} />
+                <h3>Trafikstörningar</h3>
               </div>
-              {selectedStop ? (
-                <p style={{ color: 'var(--text-dim)', fontSize: '14px' }}>
-                  {selectedStop.name} — välj en hållplats ovan för att se eventuella förseningar i realtid.
-                  Försenade avgångar markeras i <span style={{ color: '#ffa500' }}>orange</span> i avståndspanelen.
-                </p>
-              ) : (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '16px', background: 'rgba(0,255,136,0.05)', borderRadius: '12px', border: '1px solid rgba(0,255,136,0.1)' }}>
-                  <div style={{ width: '8px', height: '8px', backgroundColor: '#00ff88', borderRadius: '50%', boxShadow: '0 0 8px #00ff88', flexShrink: 0 }} />
-                  <span style={{ fontSize: '14px', color: '#00ff88' }}>Inga störningar just nu — välj en hållplats för att se live-status.</span>
-                </div>
-              )}
+              {selectedStop ? <p>{selectedStop.name} — välj en hållplats för att se förseningar.</p> : <div>Inga störningar.</div>}
             </div>
           </div>
-
         </div>
       </main>
     </div>
