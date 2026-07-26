@@ -81,17 +81,13 @@ export default function Home() {
       <main className="auth-main">
         <div style={{ width: '100%', maxWidth: '860px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
           
-
           <div ref={overviewRef}>
-      <StopSearch onSelectStop={selectStop} onSaveStop={handleSave} />
-      {selectedStop && <DeparturePanel 
-      savedStops={savedStops}
-      onSave={handleSave} 
-      onDelete={handleDelete}
-      stop={selectedStop} />}
-    </div>
-          
-         
+            <p className={styles.sectionLabel}>Översikt</p>
+            <StopSearch onSelectStop={selectStop} currentStop={selectedStop} />
+            <AnimatePresence mode="wait">
+              {selectedStop && <DeparturePanel key={selectedStop.id} stop={selectedStop} savedStops={savedStops} onSave={handleSave} onDelete={handleDelete} />}
+            </AnimatePresence>
+          </div>
 
           <div ref={myStopsRef}>
             <p className={styles.sectionLabel}>Mina hållplatser</p>
