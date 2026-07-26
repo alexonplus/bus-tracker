@@ -47,11 +47,33 @@ export default function Home() {
     setActiveSection('overview')
   }
 
+  
+
+  // check for watched buses and show notifications
+  const handleNavClick = (id, ref) => {
+    setActiveSection(id)
+    ref?.current?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  // function to check for watched buses and show notifications
   const navItems = [
-    { id: 'overview', label: 'Översikt', ref: overviewRef },
-    { id: 'mystops', label: 'Mina hållplatser', ref: myStopsRef },
-    { id: 'alerts', label: 'Trafikstörningar', ref: alertsRef }
+    { 
+      id: 'overview', 
+      label: 'Översikt', 
+      onClick: () => handleNavClick('overview', overviewRef) 
+    },
+    { 
+      id: 'mystops', 
+      label: 'Mina hållplatser', 
+      onClick: () => handleNavClick('mystops', myStopsRef) 
+    },
+    { 
+      id: 'alerts', 
+      label: 'Trafikstörningar', 
+      onClick: () => handleNavClick('alerts', alertsRef) 
+    }
   ]
+
 
   return (
     <div className="app-wrapper dashboard-wrapper">
