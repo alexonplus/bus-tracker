@@ -3,6 +3,7 @@ using BusTracker.Application.Interfaces;
 using BusTracker.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using BusTracker.Application.DTOs;
 
 namespace BusTracker.API.Controllers;
 

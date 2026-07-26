@@ -47,11 +47,33 @@ export default function Home() {
     setActiveSection('overview')
   }
 
+  
+
+  // check for watched buses and show notifications
+  const handleNavClick = (id, ref) => {
+    setActiveSection(id)
+    ref?.current?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  // function to check for watched buses and show notifications
   const navItems = [
-    { id: 'overview', label: 'Översikt', ref: overviewRef },
-    { id: 'mystops', label: 'Mina hållplatser', ref: myStopsRef },
-    { id: 'alerts', label: 'Trafikstörningar', ref: alertsRef }
+    { 
+      id: 'overview', 
+      label: 'Översikt', 
+      onClick: () => handleNavClick('overview', overviewRef) 
+    },
+    { 
+      id: 'mystops', 
+      label: 'Mina hållplatser', 
+      onClick: () => handleNavClick('mystops', myStopsRef) 
+    },
+    { 
+      id: 'alerts', 
+      label: 'Trafikstörningar', 
+      onClick: () => handleNavClick('alerts', alertsRef) 
+    }
   ]
+
 
   return (
     <div className="app-wrapper dashboard-wrapper">
@@ -59,13 +81,17 @@ export default function Home() {
       <main className="auth-main">
         <div style={{ width: '100%', maxWidth: '860px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
           
+
           <div ref={overviewRef}>
-            <p className={styles.sectionLabel}>Översikt</p>
-            <StopSearch onSelectStop={selectStop} currentStop={selectedStop} />
-            <AnimatePresence mode="wait">
-              {selectedStop && <DeparturePanel key={selectedStop.id} stop={selectedStop} savedStops={savedStops} onSave={handleSave} onDelete={handleDelete} />}
-            </AnimatePresence>
-          </div>
+      <StopSearch onSelectStop={selectStop} onSaveStop={handleSave} />
+      {selectedStop && <DeparturePanel 
+      savedStops={savedStops}
+      onSave={handleSave} 
+      onDelete={handleDelete}
+      stop={selectedStop} />}
+    </div>
+          
+         
 
           <div ref={myStopsRef}>
             <p className={styles.sectionLabel}>Mina hållplatser</p>

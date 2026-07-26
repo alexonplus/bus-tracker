@@ -9,6 +9,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using System.Text.Json.Serialization;
+using BusTracker.Application.Interfaces;
+using BusTracker.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -70,6 +72,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
+builder.Services.AddScoped<IPasswordHasher, IdentityPasswordHasher>(); // <-- Register the password hasher implementation
+builder.Services.AddScoped<IAuthService, AuthService>(); // <-- Register the auth service implementation
 
 var app = builder.Build();
 
